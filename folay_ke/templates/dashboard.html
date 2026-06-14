@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyLegalDocs KE | Document Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f3f4f6; }
+        .toast { animation: slideIn 0.3s ease-out; position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .modal { transition: all 0.3s ease; }
+        .image-preview { transition: all 0.2s ease; cursor: pointer; }
+        .image-preview:hover { transform: scale(1.02); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .receipt { background: white; }
+        @media print {
+            .no-print { display: none; }
+            .receipt { margin: 0; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="w-9 h-9 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="ml-3 text-xl font-bold text-gray-900">MyLegalDocs KE</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-gray-900">{{ user.name }}</p>
+                        <p class="text-xs text-gray-500" id="user-email-display">{{ user.email }}</p>
+                    </div>
+                    <a href="/logout" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 transition">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Banner -->
+        <div class="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome, {{ user.name }}! 🇰🇪</h1>
+                    <p class="text-gray-600">Manage all your legal documents in one secure location</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">Secure Session</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Notice Banner -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-yellow-400 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="text-sm text-yellow-700">
+                        <span class="font-bold">Legal Notice:</span> All documents uploaded by <span class="font-semibold">{{ user.email }}</span> 
+                        are protected under the <span class="font-semibold">Data Protection Act, 2019 (Kenya)</span> and the 
+                        <span class="font-semibold">Constitution of Kenya, 2010, Article 31 (Right to Privacy)</span>.
+                        Your data is encrypted and will not be shared with third parties without your explicit consent.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privacy Banner -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm text-blue-800">
+                        <span class="font-bold">Privacy Commitment:</span> Your documents are stored securely with end-to-end encryption. 
+                        Only you can access your uploaded documents. We comply with the Kenya Data Protection Commissioner's guidelines.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Categories -->
+        {% for cat_key, category in categories.items()|sort(attribute='1.order') %}
+        <div class="mb-12">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="text-3xl">{{ category.icon }}</div>
+                <h2 class="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4">{{ category.name }}</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {% for doc in category.documents %}
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition-all">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-900">{{ doc.name }}</h3>
+                            {% if doc.required %}
+                            <span class="text-xs text-red-500">Required by Law</span>
+                            {% else %}
+                            <span class="text-xs text-gray-400">Optional</span>
+                            {% endif %}
+                        </div>
+                        <div id="status-{{ cat_key }}-{{ doc.id }}">
+                            <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Not Added</span>
+                        </div>
+                    </div>
+                    <div id="button-container-{{ cat_key }}-{{ doc.id }}">
+                        <button onclick="openAddModal('{{ cat_key }}', '{{ doc.id }}', '{{ doc.name }}')" 
+                                class="w-full bg-blue-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Add Document
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- First Time User Welcome Modal -->
+    <div id="welcome-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-3xl w-full mx-4 max-h-[85vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome to MyLegalDocs KE</h2>
+                <p class="text-gray-600">Please read the following important information before proceeding</p>
+            </div>
+
+            <div class="space-y-6">
+                <div class="border-l-4 border-blue-600 pl-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">1. Legal Framework</h3>
+                    <p class="text-sm text-gray-600">This platform operates under the following Kenyan laws:</p>
+                    <ul class="text-sm text-gray-600 mt-2 list-disc list-inside">
+                        <li>Constitution of Kenya, 2010 - Article 31 (Right to Privacy)</li>
+                        <li>Data Protection Act, 2019</li>
+                        <li>Computer Misuse and Cybercrimes Act, 2018</li>
+                        <li>Kenya Information and Communications Act, 1998</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-green-600 pl-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">2. Data Protection & Privacy</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>✓ Your documents are encrypted and stored securely</li>
+                        <li>✓ We do not share your data with third parties without consent</li>
+                        <li>✓ You have the right to access, correct, or delete your data</li>
+                        <li>✓ All data is stored on servers compliant with Kenyan data laws</li>
+                        <li>✓ You can export your data at any time</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-600 pl-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">3. User Responsibilities</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>✓ Ensure all uploaded documents are authentic and belong to you</li>
+                        <li>✓ Do not upload forged or counterfeit documents</li>
+                        <li>✓ Keep your login credentials secure</li>
+                        <li>✓ Report any security concerns immediately</li>
+                        <li>✓ Update your documents when they expire or change</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-red-600 pl-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">4. Important Disclaimers</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>⚠️ This platform is for personal document management only</li>
+                        <li>⚠️ Not a replacement for official government systems</li>
+                        <li>⚠️ You are responsible for the accuracy of uploaded information</li>
+                        <li>⚠️ We recommend keeping physical copies of all important documents</li>
+                        <li>⚠️ In case of legal disputes, original documents take precedence</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">5. Recommended Actions</h3>
+                    <div class="grid md:grid-cols-2 gap-3 text-sm">
+                        <div class="flex items-center gap-2"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Regularly backup your documents</span></div>
+                        <div class="flex items-center gap-2"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Set reminders for document expiry</span></div>
+                        <div class="flex items-center gap-2"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Update documents when renewed</span></div>
+                        <div class="flex items-center gap-2"><svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Keep emergency contacts updated</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">6. Support & Assistance</h3>
+                    <p class="text-sm text-gray-600 mb-2">For any issues or questions:</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>📧 Email: support@mylegaldocs.co.ke</li>
+                        <li>📞 Call: 0700-123-456</li>
+                        <li>📍 Office: 3rd Floor, Kenya Re Towers, Nairobi</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-6 pt-4 border-t">
+                <input type="checkbox" id="agree-checkbox" class="w-4 h-4 mt-1">
+                <label for="agree-checkbox" class="text-sm text-gray-700">
+                    I confirm that I have read and understood the above information. I agree to comply with all legal requirements and understand my rights and responsibilities as a user of this platform.
+                </label>
+            </div>
+
+            <div class="flex gap-3 mt-4">
+                <button onclick="acceptTerms()" id="accept-btn" disabled class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">I Agree & Continue</button>
+                <button onclick="declineAndLogout()" class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition">Decline & Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Document Modal -->
+    <div id="add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 border-b">
+                <h3 class="text-2xl font-bold text-gray-900" id="modal-title">Add Document</h3>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="add-document-form" enctype="multipart/form-data">
+                <input type="hidden" id="doc-category-id" name="category_id">
+                <input type="hidden" id="doc-document-id" name="document_id">
+                <input type="hidden" id="doc-document-name" name="document_name">
+                <input type="hidden" id="edit-doc-id" name="edit_doc_id" value="">
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Document Information
+                            </h4>
+                            <div id="dynamic-fields" class="space-y-3"></div>
+                            
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Document Status</label>
+                                <select id="doc-status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="obtained">✅ Obtained - I have this document</option>
+                                    <option value="pending">⏳ Pending - Still need to get this</option>
+                                    <option value="in_progress">🔄 In Progress - Application submitted</option>
+                                    <option value="expired">⚠️ Expired - Needs renewal</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+                                <textarea id="doc-notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Any additional information about this document..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Document Images
+                            </h4>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Front View / Page 1</label>
+                                    <input type="file" id="front-image" name="front_image" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <div id="front-preview" class="mt-2 hidden">
+                                        <img id="front-img-preview" class="w-full max-h-48 object-contain rounded-lg border image-preview">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Back View / Page 2 (Optional)</label>
+                                    <input type="file" id="back-image" name="back_image" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <div id="back-preview" class="mt-2 hidden">
+                                        <img id="back-img-preview" class="w-full max-h-48 object-contain rounded-lg border image-preview">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-900 mb-2">📋 Document Guidelines</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Upload clear, readable images</li>
+                                <li>• Ensure all details are visible</li>
+                                <li>• Supported formats: JPG, PNG</li>
+                                <li>• Maximum file size: 5MB per file</li>
+                                <li>• You can blur sensitive information if desired</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 pt-6 mt-4 border-t">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Save Document</button>
+                    <button type="button" onclick="closeAddModal()" class="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-6 max-w-3xl w-full mx-4 my-8">
+            <div class="flex justify-between items-center mb-4 sticky top-0 bg-white pb-4 border-b">
+                <h3 class="text-2xl font-bold text-gray-900">Document Receipt</h3>
+                <button onclick="closeReceiptModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="receipt-content"></div>
+            <div class="flex gap-3 mt-6 pt-4 border-t no-print">
+                <button onclick="downloadReceiptAsPDF()" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download PDF
+                </button>
+                <button onclick="printReceipt()" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print
+                </button>
+                <button onclick="closeReceiptModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userDocuments = [];
+        let currentFieldConfig = {};
+        let currentEditId = null;
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast bg-${type === 'success' ? 'green-500' : type === 'error' ? 'red-500' : 'blue-500'} text-white px-6 py-3 rounded-lg shadow-lg`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Image preview handlers
+        document.getElementById('front-image')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('front-img-preview').src = event.target.result;
+                    document.getElementById('front-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('back-image')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('back-img-preview').src = event.target.result;
+                    document.getElementById('back-preview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function openAddModal(categoryId, documentId, documentName) {
+            currentEditId = null;
+            document.getElementById('modal-title').textContent = `Add: ${documentName}`;
+            document.getElementById('doc-category-id').value = categoryId;
+            document.getElementById('doc-document-id').value = documentId;
+            document.getElementById('doc-document-name').value = documentName;
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('doc-status').value = 'obtained';
+            document.getElementById('doc-notes').value = '';
+            document.getElementById('front-preview').classList.add('hidden');
+            document.getElementById('back-preview').classList.add('hidden');
+            document.getElementById('front-image').value = '';
+            document.getElementById('back-image').value = '';
+            
+            try {
+                const response = await fetch(`/api/document_fields/${categoryId}/${documentId}`);
+                const config = await response.json();
+                currentFieldConfig = config;
+                
+                const fieldsContainer = document.getElementById('dynamic-fields');
+                fieldsContainer.innerHTML = '';
+                
+                if (config.fields && config.fields.length > 0) {
+                    config.fields.forEach(field => {
+                        const requiredMark = field.required ? '<span class="text-red-500">*</span>' : '';
+                        let inputHtml = '';
+                        const fieldName = field.label.toLowerCase().replace(/ /g, '_');
+                        
+                        if (field.type === 'select') {
+                            inputHtml = `<select name="${fieldName}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select ${field.label}</option>
+                                ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>`;
+                        } else {
+                            inputHtml = `<input type="${field.type}" name="${fieldName}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>`;
+                        }
+                        
+                        fieldsContainer.innerHTML += `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">${field.label} ${requiredMark}</label>
+                                ${inputHtml}
+                            </div>
+                        `;
+                    });
+                }
+                
+                document.getElementById('add-modal').classList.remove('hidden');
+                document.getElementById('add-modal').classList.add('flex');
+            } catch (error) {
+                showToast('Error loading document fields', 'error');
+            }
+        }
+
+        async function openEditModal(docId, categoryId, documentId, documentName) {
+            currentEditId = docId;
+            document.getElementById('modal-title').textContent = `Edit: ${documentName}`;
+            document.getElementById('doc-category-id').value = categoryId;
+            document.getElementById('doc-document-id').value = documentId;
+            document.getElementById('doc-document-name').value = documentName;
+            document.getElementById('edit-doc-id').value = docId;
+            
+            try {
+                const response = await fetch(`/api/document/${docId}`);
+                const doc = await response.json();
+                
+                const fieldsResponse = await fetch(`/api/document_fields/${categoryId}/${documentId}`);
+                const config = await fieldsResponse.json();
+                currentFieldConfig = config;
+                
+                const fieldsContainer = document.getElementById('dynamic-fields');
+                fieldsContainer.innerHTML = '';
+                
+                if (config.fields && config.fields.length > 0) {
+                    config.fields.forEach(field => {
+                        const requiredMark = field.required ? '<span class="text-red-500">*</span>' : '';
+                        const fieldName = field.label.toLowerCase().replace(/ /g, '_');
+                        let inputHtml = '';
+                        const fieldValue = doc[fieldName] || '';
+                        
+                        if (field.type === 'select') {
+                            inputHtml = `<select name="${fieldName}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select ${field.label}</option>
+                                ${field.options.map(opt => `<option value="${opt}" ${fieldValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            </select>`;
+                        } else {
+                            inputHtml = `<input type="${field.type}" name="${fieldName}" value="${fieldValue}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>`;
+                        }
+                        
+                        fieldsContainer.innerHTML += `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">${field.label} ${requiredMark}</label>
+                                ${inputHtml}
+                            </div>
+                        `;
+                    });
+                }
+                
+                document.getElementById('doc-status').value = doc.status || 'obtained';
+                document.getElementById('doc-notes').value = doc.notes || '';
+                
+                if (doc.front_image_url) {
+                    document.getElementById('front-img-preview').src = doc.front_image_url;
+                    document.getElementById('front-preview').classList.remove('hidden');
+                }
+                if (doc.back_image_url) {
+                    document.getElementById('back-img-preview').src = doc.back_image_url;
+                    document.getElementById('back-preview').classList.remove('hidden');
+                }
+                
+                document.getElementById('add-modal').classList.remove('hidden');
+                document.getElementById('add-modal').classList.add('flex');
+            } catch (error) {
+                showToast('Error loading document data', 'error');
+            }
+        }
+
+        document.getElementById('add-document-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const editId = document.getElementById('edit-doc-id').value;
+            
+            try {
+                let url = '/save_document';
+                let method = 'POST';
+                
+                if (editId) {
+                    url = `/api/documents/${editId}`;
+                    method = 'PUT';
+                }
+                
+                const response = await fetch(url, { method: method, body: formData });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(editId ? 'Document updated successfully!' : 'Document saved successfully!', 'success');
+                    closeAddModal();
+                    loadUserDocuments();
+                    e.target.reset();
+                    document.getElementById('front-preview').classList.add('hidden');
+                    document.getElementById('back-preview').classList.add('hidden');
+                } else {
+                    showToast('Failed to save document', 'error');
+                }
+            } catch (error) {
+                showToast('Error saving document', 'error');
+            }
+        });
+
+        async function loadUserDocuments() {
+            try {
+                const response = await fetch('/api/documents');
+                userDocuments = await response.json();
+                updateDocumentStatuses();
+                updateDocumentButtons();
+            } catch (error) {
+                console.error('Error loading:', error);
+            }
+        }
+
+        function updateDocumentStatuses() {
+            document.querySelectorAll('[id^="status-"]').forEach(el => {
+                el.innerHTML = `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Not Added</span>`;
+            });
+            
+            userDocuments.forEach(doc => {
+                const el = document.getElementById(`status-${doc.category_id}-${doc.document_id}`);
+                if (el) {
+                    const colors = { 'obtained': 'bg-green-100 text-green-700', 'pending': 'bg-yellow-100 text-yellow-700', 'in_progress': 'bg-blue-100 text-blue-700', 'expired': 'bg-red-100 text-red-700' };
+                    const labels = { 'obtained': '✓ Obtained', 'pending': '⏳ Pending', 'in_progress': '🔄 In Progress', 'expired': '⚠️ Expired' };
+                    el.innerHTML = `<span class="inline-flex px-2 py-1 rounded-full text-xs font-medium ${colors[doc.status] || 'bg-gray-100'}">${labels[doc.status] || doc.status}</span>`;
+                }
+            });
+        }
+
+        function updateDocumentButtons() {
+            userDocuments.forEach(doc => {
+                const buttonContainer = document.getElementById(`button-container-${doc.category_id}-${doc.document_id}`);
+                if (buttonContainer) {
+                    buttonContainer.innerHTML = `
+                        <button onclick="openEditModal(${doc.id}, '${doc.category_id}', '${doc.document_id}', '${doc.document_name}')" 
+                                class="w-full bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-yellow-700 transition flex items-center justify-center gap-2 mb-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Edit Document
+                        </button>
+                        <button onclick="viewDocumentReceipt(${doc.id})" 
+                                class="w-full bg-purple-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-purple-700 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View Details
+                        </button>
+                    `;
+                }
+            });
+        }
+
+        async function viewDocumentReceipt(docId) {
+            try {
+                const response = await fetch(`/api/document_receipt/${docId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const doc = result.document;
+                    const qrCode = result.qr_code;
+                    const currentYear = new Date().getFullYear();
+                    
+                    let receiptHtml = `
+                        <div class="receipt" id="receipt-print-area">
+                            <div class="text-center border-b pb-4 mb-4">
+                                <div class="flex justify-between items-start">
+                                    <div class="text-left">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h2 class="text-2xl font-bold text-gray-900">MyLegalDocs KE</h2>
+                                                <p class="text-xs text-gray-500">Official Document Receipt</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <img src="${qrCode}" class="w-24 h-24 border rounded-lg" alt="QR Code">
+                                        <p class="text-xs text-gray-500 mt-1">Scan to Verify</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">Document Name</p>
+                                    <p class="font-semibold text-gray-900">${doc.document_name || 'N/A'}</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">Receipt ID</p>
+                                    <p class="font-semibold text-gray-900">#MLD${String(doc.id).padStart(6, '0')}</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">Status</p>
+                                    <p class="font-semibold capitalize ${doc.status === 'obtained' ? 'text-green-600' : doc.status === 'pending' ? 'text-yellow-600' : 'text-blue-600'}">${doc.status || 'N/A'}</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">User Email</p>
+                                    <p class="font-semibold text-gray-900">${doc.user_email || 'N/A'}</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">Created Date</p>
+                                    <p class="font-semibold text-gray-900">${new Date(doc.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 uppercase font-semibold">Document Number</p>
+                                    <p class="font-semibold text-gray-900">${doc.document_number || 'N/A'}</p>
+                                </div>
+                            </div>
+                            
+                            ${doc.full_name ? `
+                            <div class="border-t pt-4 mt-2">
+                                <h4 class="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div><span class="text-gray-500">Full Name:</span> <span class="font-medium">${doc.full_name || 'N/A'}</span></div>
+                                    ${doc.date_of_birth ? `<div><span class="text-gray-500">Date of Birth:</span> <span class="font-medium">${doc.date_of_birth}</span></div>` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            ${doc.notes ? `
+                            <div class="bg-yellow-50 p-3 rounded-lg mt-4">
+                                <p class="text-sm text-yellow-800"><span class="font-semibold">Notes:</span> ${doc.notes}</p>
+                            </div>
+                            ` : ''}
+                            
+                            <div class="bg-green-50 p-3 rounded-lg mt-4 text-center">
+                                <p class="text-sm text-green-800">✓ This document is verified and stored securely in compliance with Kenyan law</p>
+                            </div>
+                            
+                            <div class="text-center text-xs text-gray-400 mt-6 pt-4 border-t">
+                                <p>Generated on ${new Date().toLocaleString()} | MyLegalDocs KE</p>
+                                <p>© ${currentYear} MyLegalDocs KE - All Rights Reserved</p>
+                                <p class="mt-1">Republic of Kenya | Data Protection Act, 2019 Compliant</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('receipt-content').innerHTML = receiptHtml;
+                    document.getElementById('receipt-modal').classList.remove('hidden');
+                    document.getElementById('receipt-modal').classList.add('flex');
+                }
+            } catch (error) {
+                showToast('Error loading receipt', 'error');
+            }
+        }
+
+        function downloadReceiptAsPDF() {
+            const element = document.getElementById('receipt-print-area');
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `document_receipt_${Date.now()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function printReceipt() {
+            const printContent = document.getElementById('receipt-print-area').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Document Receipt - MyLegalDocs KE</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 20px; margin: 0; }
+                            @media print { body { margin: 0; padding: 0; } }
+                            .receipt { max-width: 800px; margin: 0 auto; }
+                            .text-center { text-align: center; }
+                            .border-b { border-bottom: 1px solid #ddd; }
+                            .border-t { border-top: 1px solid #ddd; }
+                            .bg-gray-50 { background-color: #f9fafb; }
+                            .bg-green-50 { background-color: #f0fdf4; }
+                            .bg-yellow-50 { background-color: #fefce8; }
+                            .p-3 { padding: 12px; }
+                            .rounded-lg { border-radius: 8px; }
+                            .grid { display: grid; }
+                            .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+                            .gap-4 { gap: 16px; }
+                            .mb-4 { margin-bottom: 16px; }
+                            .mt-4 { margin-top: 16px; }
+                            .font-semibold { font-weight: 600; }
+                            .text-xs { font-size: 12px; }
+                            .text-sm { font-size: 14px; }
+                            .text-gray-500 { color: #6b7280; }
+                            .text-gray-900 { color: #111827; }
+                            .text-green-600 { color: #16a34a; }
+                        </style>
+                    </head>
+                    <body>${printContent}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function checkFirstTimeUser() {
+            const hasAccepted = localStorage.getItem('terms_accepted');
+            if (!hasAccepted) {
+                setTimeout(() => {
+                    document.getElementById('welcome-modal').classList.remove('hidden');
+                    document.getElementById('welcome-modal').classList.add('flex');
+                }, 500);
+            }
+        }
+
+        function acceptTerms() {
+            const checkbox = document.getElementById('agree-checkbox');
+            if (checkbox.checked) {
+                fetch('/accept_terms', { method: 'POST' })
+                    .then(() => {
+                        localStorage.setItem('terms_accepted', 'true');
+                        closeWelcomeModal();
+                        showToast('Thank you for accepting the terms!', 'success');
+                    });
+            } else {
+                showToast('Please agree to the terms to continue', 'error');
+            }
+        }
+
+        function declineAndLogout() {
+            if (confirm('You must accept the terms to use this platform. Do you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').classList.add('hidden');
+            document.getElementById('welcome-modal').classList.remove('flex');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-modal').classList.remove('flex');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+            document.getElementById('receipt-modal').classList.remove('flex');
+        }
+
+        document.getElementById('agree-checkbox')?.addEventListener('change', function(e) {
+            const acceptBtn = document.getElementById('accept-btn');
+            if (acceptBtn) acceptBtn.disabled = !e.target.checked;
+        });
+
+        // Initialize
+        checkFirstTimeUser();
+        loadUserDocuments();
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="grid md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <h4 class="font-semibold mb-3">Legal Framework</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>Constitution of Kenya, 2010</li>
+                        <li>Data Protection Act, 2019</li>
+                        <li>Computer Misuse Act, 2018</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Compliance</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>ISO 27001 Certified</li>
+                        <li>GDPR Compliant</li>
+                        <li>ODPC Registered</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Contact</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>Email: support@mylegaldocs.co.ke</li>
+                        <li>Phone: 0700-123-456</li>
+                        <li>24/7 Support Available</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6">
+                <p>© <script>document.write(new Date().getFullYear())</script> MyLegalDocs KE | All Rights Reserved</p>
+                <p class="text-sm text-gray-400 mt-2">User: {{ user.email }} | Protected under Kenyan Law</p>
+                <p class="text-xs text-gray-500 mt-2">Registered with the Office of the Data Protection Commissioner (ODPC)</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

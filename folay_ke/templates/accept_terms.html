@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Terms - MyLegalDocs KE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white text-center">
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold mb-2">Welcome to MyLegalDocs KE</h1>
+                <p class="text-blue-100">Please review and accept our Terms of Service to continue</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-6 max-h-96 overflow-y-auto">
+                    <div class="border-l-4 border-blue-600 pl-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">1. Legal Framework</h3>
+                        <p class="text-sm text-gray-600">This platform operates under the following Kenyan laws:</p>
+                        <ul class="text-sm text-gray-600 mt-2 list-disc list-inside">
+                            <li>Constitution of Kenya, 2010 - Article 31 (Right to Privacy)</li>
+                            <li>Data Protection Act, 2019</li>
+                            <li>Computer Misuse and Cybercrimes Act, 2018</li>
+                            <li>Kenya Information and Communications Act, 1998</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-green-600 pl-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">2. Data Protection & Privacy</h3>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li>✓ Your documents are encrypted and stored securely</li>
+                            <li>✓ We do not share your data with third parties without consent</li>
+                            <li>✓ You have the right to access, correct, or delete your data</li>
+                            <li>✓ All data is stored on servers compliant with Kenyan data laws</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-yellow-600 pl-4">
+                        <h3 class="font-semibold text-gray-900 mb-2">3. User Responsibilities</h3>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li>✓ Ensure all uploaded documents are authentic and belong to you</li>
+                            <li>✓ Do not upload forged or counterfeit documents</li>
+                            <li>✓ Keep your login credentials secure</li>
+                            <li>✓ Report any security concerns immediately</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6 pt-4 border-t">
+                    <input type="checkbox" id="agree-checkbox" class="w-4 h-4 mt-1">
+                    <label for="agree-checkbox" class="text-sm text-gray-700">
+                        I confirm that I have read and understood the above information. I agree to comply with all legal requirements and understand my rights and responsibilities as a user of this platform.
+                    </label>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="acceptTerms()" id="accept-btn" disabled class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">I Agree & Continue</button>
+                    <button onclick="declineAndLogout()" class="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition">Decline & Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('agree-checkbox').addEventListener('change', function(e) {
+            document.getElementById('accept-btn').disabled = !e.target.checked;
+        });
+
+        async function acceptTerms() {
+            try {
+                const response = await fetch('/accept-google-terms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ terms_accepted: true })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = result.redirect;
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('Error accepting terms. Please try again.');
+            }
+        }
+
+        function declineAndLogout() {
+            window.location.href = '/logout';
+        }
+    </script>
+</body>
+</html>

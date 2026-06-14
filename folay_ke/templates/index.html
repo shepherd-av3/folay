@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyLegalDocs KE | Official Kenyan Document Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a5f 0%, #0f2b3d 100%); }
+        .feature-card { transition: all 0.3s ease; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
+        .floating { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+        .toast { animation: slideIn 0.3s ease-out; position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white rounded-full opacity-5 floating"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white rounded-full opacity-5 floating" style="animation-delay: 1s;"></div>
+    </div>
+
+    <nav class="relative z-10 bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="ml-3 text-xl font-bold text-white">MyLegalDocs KE</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-white font-semibold transition-colors">Home</a>
+                    <a href="/features" class="text-white/90 hover:text-white transition-colors">Features</a>
+                    <a href="/categories" class="text-white/90 hover:text-white transition-colors">Categories</a>
+                    <a href="/about" class="text-white/90 hover:text-white transition-colors">About</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="openLoginModal()" class="bg-white/20 text-white px-4 py-2 rounded-lg text-sm hover:bg-white/30 transition">Login</button>
+                    <button onclick="openRegisterModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition">Register</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="toast-container"></div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Welcome Back!</h2>
+                <p class="text-gray-600">Login to access your documents</p>
+            </div>
+            <form id="login-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="login-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="login-password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" id="login-submit-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center">
+                        <span>Login</span>
+                    </button>
+                </div>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">Don't have an account? <button onclick="switchToRegister()" class="text-blue-600 hover:underline">Register here</button></p>
+            </div>
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">Or</span></div>
+            </div>
+            <a href="/auth/google" id="google-login-btn" class="flex items-center justify-center gap-2 w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </a>
+            <button onclick="closeLoginModal()" class="w-full mt-3 text-gray-500 py-2">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
+                <p class="text-gray-600">Join MyLegalDocs KE today</p>
+            </div>
+            <form id="register-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="reg-fullname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="reg-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="reg-confirm" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="reg-terms" required class="w-4 h-4 mr-2">
+                        <label class="text-sm text-gray-600">I agree to the Terms of Service and Privacy Policy</label>
+                    </div>
+                    <button type="submit" id="register-submit-btn" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center">
+                        <span>Create Account</span>
+                    </button>
+                </div>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">Already have an account? <button onclick="switchToLogin()" class="text-blue-600 hover:underline">Login here</button></p>
+            </div>
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">Or</span></div>
+            </div>
+            <a href="/auth/google" id="google-register-btn" class="flex items-center justify-center gap-2 w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Register with Google
+            </a>
+            <button onclick="closeRegisterModal()" class="w-full mt-3 text-gray-500 py-2">Cancel</button>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 flex flex-col items-center">
+            <div class="loading w-12 h-12"></div>
+            <p class="mt-4 text-gray-700">Processing...</p>
+        </div>
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="text-center lg:text-left">
+                <div class="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm mb-6">
+                    Republic of Kenya | Official Document Management System
+                </div>
+                <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                    Track Your Legal Journey
+                    <span class="block">From Birth to Retirement</span>
+                </h1>
+                <p class="text-xl text-white/90 mb-8 leading-relaxed">
+                    Securely manage all your Kenyan legal documents in one centralized platform. 
+                    Compliant with the Data Protection Act, 2019 and Constitution of Kenya, 2010.
+                </p>
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <button onclick="openLoginModal()" class="bg-white text-blue-900 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                        Login
+                    </button>
+                    <button onclick="openRegisterModal()" class="bg-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-green-700 transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                        Register
+                    </button>
+                </div>
+            </div>
+            <div class="hidden lg:block floating">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                    <div class="space-y-4">
+                        <div class="bg-white/20 rounded-lg p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-white font-semibold">Birth Certificate</span>
+                            </div>
+                            <p class="text-white/80 text-sm">Essential identification from birth</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-white font-semibold">National ID Card</span>
+                            </div>
+                            <p class="text-white/80 text-sm">Primary identification at 18+ years</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-white font-semibold">KRA PIN Certificate</span>
+                            </div>
+                            <p class="text-white/80 text-sm">Required for tax and employment</p>
+                        </div>
+                        <div class="bg-white/20 rounded-lg p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span class="text-white font-semibold">Title Deed</span>
+                            </div>
+                            <p class="text-white/80 text-sm">Proof of land ownership</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="features" class="relative z-10 bg-white py-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Platform Features</h2>
+                <p class="text-xl text-gray-600">Comprehensive document management for Kenyan citizens</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="feature-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Complete Lifecycle Coverage</h3>
+                    <p class="text-gray-600">9 life stages from birth to retirement with 40+ document types</p>
+                </div>
+                <div class="feature-card bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Enterprise-Grade Security</h3>
+                    <p class="text-gray-600">Your data is encrypted and protected with Google Authentication</p>
+                </div>
+                <div class="feature-card bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Progress Tracking</h3>
+                    <p class="text-gray-600">Monitor which documents you have obtained and what remains pending</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="categories" class="relative z-10 bg-gray-50 py-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Document Categories</h2>
+                <p class="text-xl text-gray-600">Organized chronologically by life stage</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-blue-600">01</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Birth & Early Registration</h3>
+                    <p class="text-sm text-gray-600">Birth Certificate, Immunization Card, Health Records</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-green-600">02</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Childhood & School Records</h3>
+                    <p class="text-sm text-gray-600">KCPE Certificate, KCSE Certificate, School Records</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-purple-600">03</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Adult Identity Documents</h3>
+                    <p class="text-sm text-gray-600">National ID, Passport, KRA PIN, Voter Card</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-orange-600">04</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Employment & Social Security</h3>
+                    <p class="text-sm text-gray-600">NHIF, NSSF, Employment Contracts, Professional Certs</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-red-600">05</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Business, Property & Finance</h3>
+                    <p class="text-sm text-gray-600">Title Deeds, Business Permits, Loan Agreements</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                    <div class="text-3xl mb-3 text-gray-600">06</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Legal & Court Documents</h3>
+                    <p class="text-sm text-gray-600">Court Orders, Police Clearance, Affidavits</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10 bg-gradient-to-r from-blue-900 to-indigo-900 py-16">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Organize Your Legal Documents?</h2>
+            <p class="text-xl text-white/90 mb-8">Join Kenyan citizens who trust MyLegalDocs KE</p>
+            <button onclick="openRegisterModal()" class="inline-block bg-white text-blue-900 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transition-all">Get Started Now</button>
+        </div>
+    </div>
+
+    <footer class="relative z-10 bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="grid md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <h4 class="font-semibold mb-3">Legal Framework</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>Constitution of Kenya, 2010</li>
+                        <li>Data Protection Act, 2019</li>
+                        <li>Computer Misuse Act, 2018</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Compliance</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>ISO 27001 Certified</li>
+                        <li>GDPR Compliant</li>
+                        <li>ODPC Registered</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Contact</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>Email: support@mylegaldocs.co.ke</li>
+                        <li>Phone: 0700-123-456</li>
+                        <li>24/7 Support Available</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6">
+                <p>© <script>document.write(new Date().getFullYear())</script> MyLegalDocs KE | All Rights Reserved</p>
+                <p class="text-sm text-gray-400 mt-2">Official Legal Document Management System for Kenyan Citizens</p>
+                <p class="text-xs text-gray-500 mt-2">Registered with the Office of the Data Protection Commissioner (ODPC)</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'green-500' : type === 'error' ? 'red-500' : 'blue-500';
+            toast.className = `toast bg-${bgColor} text-white px-6 py-3 rounded-lg shadow-lg`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('loading-overlay').classList.add('flex');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('loading-overlay').classList.remove('flex');
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('login-modal').classList.add('flex');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('flex');
+            document.getElementById('login-form').reset();
+        }
+
+        function openRegisterModal() {
+            document.getElementById('register-modal').classList.remove('hidden');
+            document.getElementById('register-modal').classList.add('flex');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+            document.getElementById('register-modal').classList.remove('flex');
+            document.getElementById('register-form').reset();
+        }
+
+        function switchToRegister() {
+            closeLoginModal();
+            openRegisterModal();
+        }
+
+        function switchToLogin() {
+            closeRegisterModal();
+            openLoginModal();
+        }
+
+        // Handle Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const submitBtn = document.getElementById('login-submit-btn');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading"></div> Checking...';
+            
+            try {
+                const response = await fetch('/check_user_exists', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const checkResult = await response.json();
+                
+                if (!checkResult.exists) {
+                    showToast('No account found with this email. Please register first.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Login</span>';
+                    setTimeout(() => {
+                        closeLoginModal();
+                        openRegisterModal();
+                        document.getElementById('reg-email').value = email;
+                    }, 2000);
+                    return;
+                }
+                
+                const loginResponse = await fetch('/login_email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const loginResult = await loginResponse.json();
+                
+                if (loginResult.success) {
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+                } else {
+                    showToast(loginResult.error || 'Invalid credentials', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Login</span>';
+                }
+            } catch (error) {
+                showToast('Login error. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Login</span>';
+            }
+        });
+
+        // Handle Registration
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullname = document.getElementById('reg-fullname').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const terms = document.getElementById('reg-terms').checked;
+            const submitBtn = document.getElementById('register-submit-btn');
+            
+            if (!fullname || !email || !password) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+            if (!terms) {
+                showToast('Please agree to the Terms of Service', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading"></div> Creating account...';
+            
+            try {
+                const checkResponse = await fetch('/check_user_exists', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const checkResult = await checkResponse.json();
+                
+                if (checkResult.exists) {
+                    showToast('Account already exists. Please login.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Create Account</span>';
+                    setTimeout(() => {
+                        closeRegisterModal();
+                        openLoginModal();
+                        document.getElementById('login-email').value = email;
+                    }, 2000);
+                    return;
+                }
+                
+                const registerResponse = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name: fullname, email, password, terms_accepted: true })
+                });
+                const registerResult = await registerResponse.json();
+                
+                if (registerResult.success) {
+                    showToast('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+                } else {
+                    showToast(registerResult.error || 'Registration failed', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Create Account</span>';
+                }
+            } catch (error) {
+                showToast('Registration error. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Create Account</span>';
+            }
+        });
+
+        // Handle Google OAuth loading
+        document.getElementById('google-login-btn')?.addEventListener('click', function(e) {
+            showLoading();
+        });
+        
+        document.getElementById('google-register-btn')?.addEventListener('click', function(e) {
+            showLoading();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - MyLegalDocs KE | Kenyan Document Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f3f4f6; }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .timeline-item { position: relative; padding-left: 30px; margin-bottom: 30px; }
+        .timeline-item::before { content: ''; position: absolute; left: 0; top: 5px; width: 12px; height: 12px; border-radius: 50%; background-color: #3b82f6; }
+        .timeline-item::after { content: ''; position: absolute; left: 5px; top: 17px; width: 2px; height: calc(100% - 12px); background-color: #e5e7eb; }
+        .timeline-item:last-child::after { display: none; }
+    </style>
+</head>
+<body>
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="w-9 h-9 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span class="ml-3 text-xl font-bold text-gray-900">MyLegalDocs KE</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
+                    <a href="/features" class="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+                    <a href="/categories" class="text-gray-600 hover:text-blue-600 transition-colors">Categories</a>
+                    <a href="/about" class="text-blue-600 font-semibold transition-colors">About</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">Login</a>
+                    <a href="/register" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 md:p-12 text-white mb-12">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">About MyLegalDocs KE</h1>
+                <p class="text-xl text-blue-100 mb-6">Secure, compliant, and citizen-focused legal document management for all Kenyans.</p>
+                <div class="flex flex-wrap gap-4">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                        <span class="font-bold">Est. 2024</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                        <span class="font-bold">Nairobi, Kenya</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                        <span class="font-bold">ODPC Registered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission & Vision -->
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-3">Our Mission</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    To empower every Kenyan citizen with a secure, accessible, and organized digital platform for managing their legal documents throughout their lifetime, from birth to retirement, in full compliance with Kenyan laws.
+                </p>
+            </div>
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-3">Our Vision</h2>
+                <p class="text-gray-600 leading-relaxed">
+                    To become Kenya's most trusted and comprehensive legal document management platform, recognized for innovation, security, and citizen-centric service delivery.
+                </p>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <div class="bg-white rounded-xl p-6 text-center stat-card shadow-md">
+                <div class="text-4xl font-bold text-blue-600 mb-2">9</div>
+                <div class="text-gray-600 font-medium">Life Stages</div>
+                <div class="text-sm text-gray-400">From birth to retirement</div>
+            </div>
+            <div class="bg-white rounded-xl p-6 text-center stat-card shadow-md">
+                <div class="text-4xl font-bold text-green-600 mb-2">40+</div>
+                <div class="text-gray-600 font-medium">Document Types</div>
+                <div class="text-sm text-gray-400">Comprehensive coverage</div>
+            </div>
+            <div class="bg-white rounded-xl p-6 text-center stat-card shadow-md">
+                <div class="text-4xl font-bold text-purple-600 mb-2">100%</div>
+                <div class="text-gray-600 font-medium">Data Encrypted</div>
+                <div class="text-sm text-gray-400">Enterprise-grade security</div>
+            </div>
+            <div class="bg-white rounded-xl p-6 text-center stat-card shadow-md">
+                <div class="text-4xl font-bold text-orange-600 mb-2">24/7</div>
+                <div class="text-gray-600 font-medium">Support Available</div>
+                <div class="text-sm text-gray-400">Always here to help</div>
+            </div>
+        </div>
+
+        <!-- What We Offer -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">What We Offer</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Secure Storage</h3>
+                    <p class="text-gray-600">Your documents are encrypted and stored securely on enterprise-grade infrastructure compliant with Kenyan data protection laws.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Legal Compliance</h3>
+                    <p class="text-gray-600">Fully compliant with the Constitution of Kenya 2010, Data Protection Act 2019, and ODPC regulations.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Cross-Device Access</h3>
+                    <p class="text-gray-600">Access your documents from any device, anywhere. Your data is synced across all your devices in real-time.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Journey Timeline -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Our Journey</h2>
+            <div class="bg-white rounded-2xl p-8 shadow-lg max-w-3xl mx-auto">
+                <div class="timeline-item">
+                    <h3 class="font-bold text-gray-900">2024 - Platform Launch</h3>
+                    <p class="text-gray-600">MyLegalDocs KE launched with 9 life stages and 40+ document types.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3 class="font-bold text-gray-900">2024 - ODPC Registration</h3>
+                    <p class="text-gray-600">Officially registered with the Office of the Data Protection Commissioner.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3 class="font-bold text-gray-900">2024 - ISO Certification</h3>
+                    <p class="text-gray-600">Achieved ISO 27001 certification for information security management.</p>
+                </div>
+                <div class="timeline-item">
+                    <h3 class="font-bold text-gray-900">2025 - Expansion</h3>
+                    <p class="text-gray-600">Expanded services to include more document types and integrations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Values -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Our Core Values</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="text-4xl mb-3">🔒</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Security First</h3>
+                    <p class="text-gray-600">Your data security is our top priority. We use enterprise-grade encryption and security protocols.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="text-4xl mb-3">⚖️</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Legal Integrity</h3>
+                    <p class="text-gray-600">We strictly adhere to all Kenyan laws and regulations governing data protection and privacy.</p>
+                </div>
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="text-4xl mb-3">🤝</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Citizen Focused</h3>
+                    <p class="text-gray-600">Built for Kenyans, by Kenyans. Designed to meet the unique needs of Kenyan citizens.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">FOUNDER</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-3xl font-bold">
+                        JD
+                    </div>
+                    <h3 class="font-bold text-gray-900">Ezra Barongo</h3>
+                    <p class="text-blue-600 text-sm">CEO & Founder</p>
+                    <p class="text-gray-500 text-xs mt-2">Blinkey Incorporation</p>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 text-white">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-2xl font-bold mb-4">Get in Touch</h2>
+                    <p class="text-gray-300 mb-6">Have questions? Our support team is available 24/7 to assist you.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            <span>support@mylegaldocs.co.ke</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            <span>+254 700 123 456</span>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                    <h3 class="text-xl font-bold mb-4">SUPPORTED OPERATION</h3>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex justify-between">
+                            <span>Monday - sunday:</span>
+                            <span>all times</span>
+                        </div>
+                                                                   <div class="flex justify-between mt-4 pt-4 border-t border-white/20">
+                            <span>24/7 Emergency Support:</span>
+                            <span>+254 700 123 456</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="grid md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <h4 class="font-semibold mb-3">Legal Framework</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>Constitution of Kenya, 2010</li>
+                        <li>Data Protection Act, 2019</li>
+                        <li>Computer Misuse Act, 2018</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Compliance</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li>ISO 27001 Certified</li>
+                        <li>GDPR Compliant</li>
+                        <li>ODPC Registered</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">Quick Links</h4>
+                    <ul class="text-sm text-gray-400 space-y-1">
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/categories">Categories</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6">
+                <p>© <script>document.write(new Date().getFullYear())</script> MyLegalDocs KE | All Rights Reserved</p>
+                <p class="text-sm text-gray-400 mt-2">Official Legal Document Management System for Kenyan Citizens</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
