@@ -8,8 +8,9 @@ import qrcode
 from io import BytesIO
 from dotenv import load_dotenv
 import requests
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Load environment variables
+# Load environment variables (optional - will work with or without .env file)
 load_dotenv()
 
 # Initialize Supabase client
@@ -20,9 +21,15 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 app = Flask(__name__)
 app.secret_key = "mylegaldocs_supersecret_key_2024_kenya"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-app.config['SESSION_COOKIE_SECURE'] = False
+
+# THIS IS THE MAGIC FIX FOR PYTHONANYWHERE - Forces HTTPS detection
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+# Flask configuration for HTTPS and sessions
+app.config['SESSION_COOKIE_SECURE'] = True           # Required for HTTPS
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PREFERRED_URL_SCHEME'] = 'https'         # Force HTTPS for URL generation
 
 # ==================== LEGAL DOCUMENT CATEGORIES ====================
 DOCUMENT_CATEGORIES = {
@@ -359,7 +366,9 @@ def login_email():
 @app.route("/auth/google")
 def auth_google():
     try:
-        redirect_url = "http://localhost:5000/callback"
+        # Use url_for to generate the correct callback URL automatically
+        # This will work on both localhost and PythonAnywhere
+        redirect_url = url_for('callback', _external=True)
         
         auth_response = supabase.auth.sign_in_with_oauth({
             "provider": "google",
@@ -378,7 +387,7 @@ def auth_google():
         print(f"Google Auth error: {e}")
         return redirect(url_for('home'))
 
-# ==================== CALLBACK ROUTE - FIXED VERSION ====================
+# ==================== CALLBACK ROUTE ====================
 @app.route("/callback")
 def callback():
     """Handle Google OAuth callback"""
@@ -724,6 +733,7 @@ def verify_document(doc_id):
 @app.context_processor
 def utility_processor():
     return dict(now=datetime.now, current_year=datetime.now().year)
+
 @app.route("/api/update_profile", methods=["POST"])
 def update_profile():
     if not session.get("logged_in"):
@@ -748,6 +758,12 @@ def update_profile():
     except Exception as e:
         print(f"Profile update error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+# ==================== RUN CONFIGURATION ====================
+# This is for local development
 if __name__ == "__main__":
-    
     app.run(debug=True, host='localhost', port=5000)
+
+# This is for PythonAnywhere (WSGI)
+else:
+    application = app
